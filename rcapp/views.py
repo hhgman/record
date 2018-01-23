@@ -73,6 +73,9 @@ class ApiRoot(generics.GenericAPIView):
 class Text(generics.GenericAPIView):
     name = 'text'
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    
+
     txtfile = codecs.open(os.path.join(BASE_DIR, 'static', 'text.txt'), "r", encoding="utf-16")
     mytxt = txtfile.read()
     txtfile.close()
