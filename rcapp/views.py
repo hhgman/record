@@ -1,3 +1,7 @@
+#-*- coding:utf-8 -*-
+
+
+
 from rest_framework import generics,mixins
 from rest_framework import status
 from rest_framework import permissions
@@ -16,6 +20,8 @@ from django.shortcuts import render
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import os
+import codecs
+
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
@@ -67,13 +73,16 @@ class ApiRoot(generics.GenericAPIView):
 class Text(generics.GenericAPIView):
     name = 'text'
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    txtfile = open(os.path.join(BASE_DIR, 'static','text.txt'),'r')
+    txtfile = codecs.open(os.path.join(BASE_DIR, 'static', 'text.txt'), "r", encoding="utf-16")
     mytxt = txtfile.read()
     txtfile.close()
+
     def get(self, request, *args, **kwargs):
         return Response({
             'text': self.mytxt,
         }, status=status.HTTP_200_OK)
+
+
 
 class UserCreate(generics.CreateAPIView):
     """
