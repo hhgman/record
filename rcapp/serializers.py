@@ -31,9 +31,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         model=User
         fields=(
             'username',
+            'gender',
+            'age',
             'url',
             'pk',
-            'email',
             'password',
             'recordings')
 
@@ -51,4 +52,5 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
             'owner',
             'created',
             'datafile',
+            'device',
             'result')

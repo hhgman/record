@@ -17,6 +17,7 @@ class Recordings(models.Model):
         null=True,
         default=1,
         )
+    device = models.CharField(max_length=30, blank=False, default='unknown')
     datafile = models.FileField(upload_to='uploads/%Y/%m/%d/')
     result = models.CharField(max_length=200, blank=True, default='()')
 
