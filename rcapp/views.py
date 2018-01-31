@@ -1,7 +1,3 @@
-#-*- coding:utf-8 -*-
-
-
-
 from rest_framework import generics,mixins
 from rest_framework import status
 from rest_framework import permissions
@@ -10,9 +6,9 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rcapp.models import Recordings
+from rcapp.models import Recordings, UserInfo
 from . import serializers
-from .serializers import UserSerializer, RecordingSerializer
+from .serializers import UserSerializer, RecordingSerializer, InformationSerializer
 from rcapp.permissions import IsOwner
 from rcapp.algorithm import algo
 from django.contrib.auth.models import User
@@ -20,15 +16,13 @@ from django.shortcuts import render
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import os
-import codecs
-
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     name = 'user-list'
-    permission_classes = (
-            permissions.IsAdminUser,)
+    # permission_classes = (
+    #         permissions.IsAdminUser,)
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
@@ -37,14 +31,35 @@ class UserDetail(generics.RetrieveAPIView):
     permission_classes = (
             permissions.IsAdminUser,)
 
+# user's age and gender
+class InformationDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserInfo.objects.all()
+    serializer_class = serializers.InformationSerializer
+    name = 'user-info'
+class InformationList(generics.GenericAPIView, mixins.ListModelMixin):
+    queryset = UserInfo.objects.all()
+    parser_classes = (MultiPartParser, FormParser,)
+    name = 'information_list'
+    serializer_class = InformationSerializer
+
+    def post(self, request, *args, **kwargs):
+        info_serializer = InformationSerializer(data=request.data, context={'request': request})
+
+        if info_serializer.is_valid():
+            obj = info_serializer.save()
+            return Response(info_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class RecordingList(generics.GenericAPIView, mixins.ListModelMixin):
     queryset = Recordings.objects.all()
     parser_classes = (MultiPartParser, FormParser,)
     name = 'recording-list'
     serializer_class = RecordingSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         file_serializer = RecordingSerializer(data=request.data, context={'request': request})
@@ -73,19 +88,13 @@ class ApiRoot(generics.GenericAPIView):
 class Text(generics.GenericAPIView):
     name = 'text'
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-
-    txtfile = codecs.open(os.path.join(BASE_DIR, 'static', 'text.txt'), "r", encoding="utf-16-le")
+    txtfile = open(os.path.join(BASE_DIR, 'static','text.txt'),'r')
     mytxt = txtfile.read()
     txtfile.close()
-
     def get(self, request, *args, **kwargs):
         return Response({
             'text': self.mytxt,
         }, status=status.HTTP_200_OK)
-
-
 
 class UserCreate(generics.CreateAPIView):
     """
@@ -98,7 +107,7 @@ class UserCreate(generics.CreateAPIView):
             user = serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def create_user(request):

@@ -22,8 +22,20 @@ class Recordings(models.Model):
     result = models.CharField(max_length=200, blank=True, default='()')
 
     class Meta:
-        # ordering=('owner','-created')
-        ordering=('-created',)
+        ordering=('owner','-created')
+        # ordering=('-created',)
+
+class UserInfo(models.Model):
+    owner = models.ForeignKey(
+        'auth.User',
+        related_name='userinfo',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        default=1,
+        )
+    gender = models.CharField(max_length=7, blank=False, default='unknown')
+    age = models.CharField(max_length=7, blank=False, default='unknown')
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('rcapp.urls')),
     #url(r'^api-auth/', include('rest_framework.urls')),
+    url(r'^uploads/',include('uploads.urls'), name='uploads'),
     url(r'^join/$', views.UserCreate.as_view(),name='account-create'),
     url(r'^api-token-auth/', obtain_auth_token),
 
